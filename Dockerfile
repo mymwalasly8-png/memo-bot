@@ -6,8 +6,8 @@ WORKDIR /usr/src/app
 
 COPY package.json ./
 
-# أمر تثبيت نظيف ومباشر
-RUN npm install
+# المرة هادي حطينا الأمر اللي طلبه npm بالظبط
+RUN npm install --legacy-peer-deps
 
 COPY . .
 
