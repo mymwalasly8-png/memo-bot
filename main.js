@@ -68,7 +68,7 @@ await loadPlugins();
 console.log(chalk.green(`✅ تم تحميل ${Object.keys(global.plugins).length} أمر بنجاح!`));
 
 // إعدادات الاتصال بالواتساب
-global.authFile = `MysticSession`;
+global.authFile = `MemoSessionV1`;
 const {state, saveCreds} = await useMultiFileAuthState(global.authFile);
 const {version} = await fetchLatestBaileysVersion();
 
