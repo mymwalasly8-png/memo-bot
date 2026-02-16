@@ -1,25 +1,20 @@
-FROM node:18
+FROM node:16
 
-# تثبيت المكتبات اللازمة للنظام
-RUN apt-get update && apt-get install -y \
-    ffmpeg \
-    imagemagick \
-    webp \
-    && rm -rf /var/lib/apt/lists/*
+# تثبيت الأدوات الأساسية
+RUN apt-get update && apt-get install -y ffmpeg imagemagick webp git && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /usr/src/app
 
-# نسخ ملف package.json فقط في البداية
+# نسخ الملفات
 COPY package.json ./
 
-# تثبيت المكتبات مع تجاهل التعارضات
-RUN npm install --legacy-peer-deps
+# تنظيف الكاش وتثبيت المكتبات بالقوة
+RUN npm cache clean --force
+RUN npm install --save --legacy-peer-deps || npm install --only=prod --legacy-peer-deps
 
-# نسخ باقي الملفات
 COPY . .
 
-# المنفذ اللي اتفقنا عليه
 EXPOSE 3000
 
-# أمر تشغيل البوت
+# تشغيل الملف الرئيسي مباشرة
 CMD ["node", "index.js"]
