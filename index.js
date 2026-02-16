@@ -8,11 +8,20 @@ import cfonts from "cfonts";
 import chalk from "chalk";
 import { createInterface } from "readline";
 import yargs from "yargs";
+import express from "express"; // أضفنا هذا السطر
+
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const require = createRequire(__dirname);
 const { name, author } = require(join(__dirname, "./package.json"));
 const { say } = cfonts;
 const rl = createInterface(process.stdin, process.stdout);
+
+// --- كود السيرفر لإرضاء Koyeb ---
+const app = express();
+const port = process.env.PORT || 3000;
+app.get('/', (req, res) => res.send('Memo Bot is Live!'));
+app.listen(port, () => console.log(`Koyeb Server is running on port ${port}`));
+// ------------------------------
 
 say('ميمو بوت\nBot\nMD', {
 font: 'chrome',
@@ -24,10 +33,7 @@ align: 'center',
 gradient: ['red', 'magenta']});
 
 var isRunning = false;
-/**
-* Start a js file
-* @param {String} file `path/to/file`
-*/
+
 function start(file) {
 if (isRunning) return
 isRunning = true;
@@ -64,6 +70,5 @@ if (!opts['test'])
 if (!rl.listenerCount()) rl.on('line', line => {
 p.emit('message', line.trim())
 })
-//console.log(p)
 }
 start('main.js')
