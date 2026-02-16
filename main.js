@@ -79,8 +79,8 @@ const connectionOptions = {
     creds: state.creds,
     keys: makeCacheableSignalKeyStore(state.keys, pino({level: 'silent'})),
   },
-  browser: ['Memo Bot', 'Chrome', '1.0.0'],
-  version,
+browser: ['Ubuntu', 'Chrome', '20.0.04'],
+version: [2, 3000, 1015901307],
 };
 
 global.conn = makeWASocket(connectionOptions);
