@@ -13,7 +13,8 @@ import chalk from 'chalk';
 import pino from 'pino';
 import {Boom} from '@hapi/boom'; 
 import {makeWASocket, protoType, serialize} from './lib/simple.js';
-import {Low, JSONFile} from 'lowdb';
+import { Low } from 'lowdb';
+import { JSONFile } from 'lowdb/node';
 
 const {DisconnectReason, useMultiFileAuthState, fetchLatestBaileysVersion, makeCacheableSignalKeyStore} = await import('@whiskeysockets/baileys');
 
