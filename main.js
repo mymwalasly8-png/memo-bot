@@ -12,14 +12,17 @@ import yargs from 'yargs';
 import chalk from 'chalk';
 import pino from 'pino';
 import {Boom} from '@hapi/boom'; 
-import {makeWASocket, protoType, serialize} from './lib/simple.js';
-import { Low } from 'lowdb';
-import { JSONFile } from 'lowdb/node';
+// استيراد lowdb بالنسخة المستقرة
+import { Low, JSONFile } from 'lowdb';
 
-const {DisconnectReason, useMultiFileAuthState, fetchLatestBaileysVersion, makeCacheableSignalKeyStore} = await import('@whiskeysockets/baileys');
-
-protoType();
-serialize();
+const { 
+    default: makeWASocket, 
+    DisconnectReason, 
+    useMultiFileAuthState, 
+    fetchLatestBaileysVersion, 
+    makeCacheableSignalKeyStore,
+    jmp 
+} = (await import('@whiskeysockets/baileys')).default;
 
 // إعدادات المسارات
 global.__filename = function filename(pathURL = import.meta.url, rmPrefix = platform !== 'win32') {
@@ -34,7 +37,7 @@ global.opts = new Object(yargs(process.argv.slice(2)).exitProcess(false).parse()
 // --- مفتاح الذكاء الاصطناعي الخاص بك ---
 global.googleAiKey = 'AIzaSyD7WzAwXOrT3UCn3nsMIdPc5ZY0L_5z9xE'; 
 
-// إعداد قاعدة البيانات
+// إعداد قاعدة البيانات (database.json)
 global.db = new Low(new JSONFile(`database.json`));
 global.loadDatabase = async function loadDatabase() {
   if (global.db.READ) return;
@@ -64,7 +67,7 @@ async function loadPlugins() {
 await loadPlugins();
 console.log(chalk.green(`✅ تم تحميل ${Object.keys(global.plugins).length} أمر بنجاح!`));
 
-// إعدادات الاتصال
+// إعدادات الاتصال بالواتساب
 global.authFile = `MysticSession`;
 const {state, saveCreds} = await useMultiFileAuthState(global.authFile);
 const {version} = await fetchLatestBaileysVersion();
@@ -84,16 +87,24 @@ global.conn = makeWASocket(connectionOptions);
 
 async function connectionUpdate(update) {
   const {connection, lastDisconnect, qr} = update;
-  if (qr) console.log(chalk.bold.yellow('\n📸 الباركود جاهز! صوره من تليفونك:\n'));
+  
+  // طباعة الباركود
+  if (qr) {
+      console.log(chalk.bold.yellow('\n📸 الباركود جاهز! صوره من تليفونك توة:\n'));
+  }
+  
   if (connection == 'open') {
       console.log(chalk.green('\n✅ تم الاتصال بنجاح! ميمو بوت شغال توة بذكاء Gemini.. 🕺\n'));
   }
+  
   if (connection === 'close') {
     const reason = new Boom(lastDisconnect?.error)?.output?.statusCode;
+    console.log(chalk.red(`❌ تم قطع الاتصال، السبب: ${reason}. جاري إعادة المحاولة...`));
     if (reason !== DisconnectReason.loggedOut) await global.reloadHandler(true).catch(console.error);
   }
 }
 
+// معالج الأوامر (Handler)
 let handler = await import('./handler.js');
 global.reloadHandler = async function(restatConn) {
   try {
@@ -108,12 +119,13 @@ global.reloadHandler = async function(restatConn) {
   conn.ev.on('messages.upsert', (chatUpdate) => {
     const m = chatUpdate.messages[0];
     if (!m.message) return;
-    // طباعة الشات في الـ Terminal
+    
+    // طباعة الرسائل في الـ Terminal لمتابعة الشات
     const senderName = m.pushName || 'مجهول';
     const msgText = m.message.conversation || m.message.extendedTextMessage?.text || 'وسائط';
     console.log(chalk.cyan(`[ شات ]`), chalk.white(`${senderName}:`), chalk.yellow(msgText));
     
-    conn.handler(chatUpdate);
+    if (conn.handler) conn.handler(chatUpdate);
   });
 
   conn.ev.on('connection.update', conn.connectionUpdate);
@@ -122,9 +134,4 @@ global.reloadHandler = async function(restatConn) {
 };
 
 await global.reloadHandler();
-console.log(chalk.cyan("🚀 ميمو بوت في انتظارك..."));
-
-
-
-
-
+console.log(chalk.cyan("🚀 ميمو بوت الفرفور في انتظارك... صبلي شاهي!"));
